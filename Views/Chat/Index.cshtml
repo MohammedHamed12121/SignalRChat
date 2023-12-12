@@ -1,0 +1,56 @@
+@{
+    ViewData["Title"] = "Chat";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div>
+    <input type="text" id="userInput" placeholder="Enter your name">
+    <button onclick="startConnection()">Start Chat</button>
+</div>
+
+<div id="chatDiv" style="display:none">
+    <input type="text" id="messageInput" placeholder="Type a message">
+    <button onclick="sendMessage()">Send</button>
+    <ul id="messagesList"></ul>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.7/signalr.min.js"></script>
+<script>
+    // JavaScript code for SignalR communication
+    // ...
+
+    // The remaining JavaScript code should be the same as in the previous example
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.7/signalr.min.js"></script>
+<script>
+    var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+
+    connection.on("ReceiveMessage", function (user, message) {
+        var messagesList = document.getElementById("messagesList");
+        var listItem = document.createElement("li");
+        listItem.textContent = user + ": " + message;
+        messagesList.appendChild(listItem);
+    });
+
+    function startConnection() {
+        var userInput = document.getElementById("userInput");
+        var chatDiv = document.getElementById("chatDiv");
+
+        connection.start().then(function () {
+            connection.invoke("SendMessage", userInput.value, "joined the chat");
+            chatDiv.style.display = "block";
+        }).catch(function (err) {
+            return console.error(err.toString());
+        });
+    }
+
+    function sendMessage() {
+        var messageInput = document.getElementById("messageInput");
+        connection.invoke("SendMessage", document.getElementById("userInput").value, messageInput.value)
+            .catch(function (err) {
+                return console.error(err.toString());
+            });
+        messageInput.value = "";
+    }
+</script>
